@@ -1,0 +1,135 @@
+# AI基座默认配置
+
+# 项目配置
+project:
+  name: "ai-foundation"
+  version: "1.0.0"
+  environment: "development"
+
+# LLM供应商配置
+providers:
+  openai:
+    enabled: true
+    api_key: "${OPENAI_API_KEY}"
+    base_url: "https://api.openai.com/v1"
+    models:
+      default: "gpt-4o"
+      chat: "gpt-4o"
+      reasoning: "o1"
+
+  anthropic:
+    enabled: true
+    api_key: "${ANTHROPIC_API_KEY}"
+    base_url: "https://api.anthropic.com"
+    models:
+      default: "claude-sonnet-4-20250514"
+
+  google:
+    enabled: true
+    api_key: "${GOOGLE_API_KEY}"
+    models:
+      default: "gemini-2.5-pro"
+
+  zhipu:
+    enabled: true
+    api_key: "${ZHIPU_API_KEY}"
+    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    models:
+      default: "glm-4-plus"
+
+  deepseek:
+    enabled: true
+    api_key: "${DEEPSEEK_API_KEY}"
+    base_url: "https://api.deepseek.com"
+    models:
+      default: "deepseek-chat"
+
+  doubao:
+    enabled: true
+    api_key: "${DOUBAN_API_KEY}"
+    base_url: "https://ark.cn-beijing.volces.com/api/v3"
+    models:
+      default: "doubao-pro-32k"
+
+  minimax:
+    enabled: true
+    api_key: "${MINIMAX_API_KEY}"
+    base_url: "https://api.minimax.chat/v1"
+    models:
+      default: "abab6.5s-chat"
+
+  openrouter:
+    enabled: true
+    api_key: "${OPENROUTER_API_KEY}"
+    base_url: "https://openrouter.ai/api/v1"
+    models:
+      default: "anthropic/claude-3.5-sonnet"
+
+# 图像生成配置
+image:
+  dalle:
+    enabled: false
+    api_key: "${DALLE_API_KEY}"
+    model: "dall-e-3"
+    size: "1024x1024"
+  
+  stable_diffusion:
+    enabled: false
+    api_url: "http://localhost:7860"
+
+# 记忆模块配置
+memory:
+  short_term:
+    provider: "memory"
+    max_messages: 20
+  
+  long_term:
+    provider: "mongodb"
+    enabled: false
+    connection_string: "${MONGODB_URI}"
+    database: "ai_foundation"
+    collection: "memories"
+
+# Langfuse配置
+langfuse:
+  enabled: true
+  public_key: "${LANGFUSE_PUBLIC_KEY}"
+  secret_key: "${LANGFUSE_SECRET_KEY}"
+  host: "https://cloud.langfuse.com"
+  timeout: 10
+
+# 日志配置
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+# MongoDB日志配置（可选）
+mongodb_logging:
+  enabled: false
+  connection_string: "${MONGODB_URI}"
+  database: "ai_foundation"
+  collection: "ai_logs"
+
+# gRPC服务配置
+grpc:
+  host: "0.0.0.0"
+  port: 50051
+  max_workers: 10
+
+# 工具配置
+tools:
+  mcp:
+    enabled: true
+    servers: []
+  
+  builtins:
+    enabled: true
+    registry:
+      - name: "search"
+        description: "网络搜索工具"
+      - name: "calculator"
+        description: "数学计算工具"
+      - name: "file_reader"
+        description: "文件读取工具"
+      - name: "file_writer"
+        description: "文件写入工具"

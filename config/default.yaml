@@ -28,12 +28,12 @@ providers:
     enabled: true
     api_key: "${GOOGLE_API_KEY}"
     models:
-      default: "gemini-2.5-pro"
+      default: "gemini-2.5-flash"
 
   zhipu:
     enabled: true
     api_key: "${ZHIPU_API_KEY}"
-    base_url: "https://open.bigmodel.cn/api/paas/v4"
+    base_url: "https://open.bigmodel.cn/api/coding/paas/v4"
     models:
       default: "glm-4-plus"
 

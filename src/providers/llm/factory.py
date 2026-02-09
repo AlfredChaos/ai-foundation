@@ -22,6 +22,7 @@ AI Foundation - LLM供应商工厂模块
 
 from typing import Dict, Any, Optional, Type
 from abc import ABC, abstractmethod
+import json
 
 from src.core.interfaces import ILLMProvider, AIRequest, AIResponse
 from src.core.abstracts.base_provider import BaseProvider
@@ -119,7 +120,10 @@ class LLMProviderFactory:
             config = {}
         
         # 检查缓存
-        cache_key = f"{name}_{hash(frozenset(config.items()))}"
+        cache_key = f"{name}_{hash(json.dumps(config, sort_keys=True))}"
+        # 确保实例存在
+        if cls._instance is None:
+            cls()
         if cache_key in cls._instance._provider_instances:
             return cls._instance._provider_instances[cache_key]
         

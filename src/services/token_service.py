@@ -1,6 +1,6 @@
 # Token计数服务
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 
 from src.core.interfaces import ITokenCounter, Message

@@ -29,6 +29,9 @@ dependencies = [
     "langchain-openai>=0.1.0",
     "langchain-anthropic>=0.1.0",
     "langchain-google-genai>=0.1.0",
+
+    # LLM供应商SDK
+    "zhipuai>=2.1.0",  # 智谱AI
     
     # 配置管理
     "pydantic>=2.5.0",

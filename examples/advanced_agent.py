@@ -27,7 +27,7 @@ async def react_agent_detailed():
         system_prompt="""You are a mathematical reasoning agent.
 You excel at solving math problems step by step.
 Always show your work and explain each step.""",
-        model="gpt-4o",
+        model="GLM-4.7",
         temperature=0.3,  # 较低温度以获得确定性结果
         max_iterations=10,
     )
@@ -84,7 +84,7 @@ async def conversational_agent_with_history():
         AgentConfig(
             name="chatbot",
             agent_type=AgentType.CONVERSATIONAL,
-            model="gpt-4o",
+            model="GLM-4.7",
         )
     )
     
@@ -126,7 +126,7 @@ async def agent_with_tools():
     config = AgentConfig(
         name="tool-agent",
         agent_type=AgentType.REACT,
-        model="gpt-4o",
+        model="GLM-4.7",
         tools=tool_manager.list_tools(),
         max_iterations=5,
     )
@@ -223,7 +223,7 @@ async def multi_turn_reasoning():
     agent = ReActAgent(AgentConfig(
         name="reasoner",
         agent_type=AgentType.REACT,
-        model="gpt-4o",
+        model="GLM-4.7",
         max_iterations=15,
         temperature=0.5,
     ))

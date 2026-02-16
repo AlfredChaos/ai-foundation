@@ -21,7 +21,7 @@ cd /opt/ai-foundation
 pip install -e ".[dev]"
 
 # 配置
-export OPENAI_API_KEY=your-key
+export ZHIPU_API_KEY=your-key
 
 # 运行示例
 python examples/basic_usage.py
@@ -34,8 +34,8 @@ import asyncio
 from src import create_ai
 
 async def main():
-    ai = create_ai(provider="openai", model="gpt-4o")
-    
+    ai = create_ai(provider="zhipu", model="GLM-4.7")
+
     response = await ai.chat("你好！")
     print(response)
 

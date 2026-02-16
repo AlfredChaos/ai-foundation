@@ -1,5 +1,5 @@
 # [Input] `zhipuai` SDK 导入行为与 ZhipuProvider 的客户端初始化逻辑。
-# [Output] 验证仅有 `ZhipuAI` 时仍可完成客户端初始化与基础生成。
+# [Output] 验证同步回退与流式生成兼容性。
 # [Pos] LLM provider 单元测试，覆盖 zhipu SDK 版本兼容回归。
 
 import sys
@@ -32,8 +32,37 @@ class _DummyResponse:
     model = "GLM-4.7"
 
 
+class _DummyDelta:
+    def __init__(self, content: str):
+        self.content = content
+
+
+class _DummyStreamChoice:
+    def __init__(self, content: str):
+        self.delta = _DummyDelta(content)
+
+
+class _DummyStreamChunk:
+    def __init__(self, content: str):
+        self.choices = [_DummyStreamChoice(content)]
+
+
+class _DummyStream:
+    def __init__(self, contents: list[str]):
+        self._iterator = iter(contents)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        content = next(self._iterator)
+        return _DummyStreamChunk(content)
+
+
 class _DummyCompletions:
     def create(self, **kwargs):
+        if kwargs.get("stream"):
+            return _DummyStream(["a", "b"])
         return _DummyResponse()
 
 
@@ -78,3 +107,19 @@ async def test_generate_with_sync_zhipu_client_fallback(monkeypatch):
 
     assert response.content == "ok"
     assert response.usage.total_tokens == 7
+
+
+@pytest.mark.asyncio
+async def test_stream_generate_with_sync_stream(monkeypatch):
+    _install_fake_zhipu_module(monkeypatch)
+    provider = ZhipuProvider({"api_key": "test-key", "provider_name": "zhipu"})
+    request = AIRequest(
+        model="GLM-4.7",
+        messages=[Message(role=MessageRole.USER, content="hello")],
+    )
+
+    chunks = []
+    async for chunk in provider.stream_generate(request):
+        chunks.append(chunk)
+
+    assert chunks == ["a", "b"]

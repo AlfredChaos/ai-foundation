@@ -1,5 +1,7 @@
 #!/bin/bash
-# AI Foundation 项目设置脚本
+# [Input] Python 环境与项目依赖。
+# [Output] 完成开发环境初始化与示例运行指引。
+# [Pos] scripts 层开发环境设置脚本。
 
 set -e
 
@@ -40,7 +42,7 @@ echo "✅ 设置完成!"
 echo ""
 echo "使用说明:"
 echo "  1. 激活虚拟环境: source venv/bin/activate"
-echo "  2. 运行示例: python examples/basic_usage.py"
+echo "  2. 运行示例: python examples/zhipu_usage.py"
 echo "  3. 启动gRPC服务: python -m src.grpc_service.server"
 echo ""
 echo "配置说明:"

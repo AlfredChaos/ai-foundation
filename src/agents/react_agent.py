@@ -1,5 +1,6 @@
-# ReAct Agent 实现
-# 实现思考-行动-观察循环
+# [Input] AgentConfig、任务文本与 LLM/工具调用依赖。
+# [Output] 提供可执行的 ReAct（思考-行动-观察）循环结果。
+# [Pos] agents 层 ReAct Agent 实现，负责响应解析与迭代控制。
 
 import asyncio
 from typing import Dict, Any, List, Optional
@@ -129,6 +130,14 @@ Remember to think step by step and use the tools effectively."""
                 
                 # 执行动作
                 if step.action and step.action != "none":
+                    if not self.config.tools:
+                        # 无工具可用时，避免模型反复请求动作导致无穷迭代。
+                        return AgentResult(
+                            success=True,
+                            output=step.thought,
+                            intermediate_steps=intermediate_steps,
+                            tokens_used=self._estimate_tokens(intermediate_steps),
+                        )
                     observation = await tool_caller(step.action, step.action_input or {})
                     step.observation = observation
                     
@@ -192,30 +201,44 @@ Remember to think step by step and use the tools effectively."""
         action = None
         action_input = None
         is_final = False
+        has_action_field = False
         
         lines = response.strip().split('\n')
         
         for line in lines:
             line = line.strip()
-            if line.startswith("THOUGHT:"):
-                thought = line[8:].strip()
-            elif line.startswith("ACTION:"):
-                action_value = line[7:].strip().lower()
-                if action_value in ["none", "final"]:
+            if ":" not in line:
+                continue
+
+            key, value = line.split(":", 1)
+            normalized_key = key.strip().lower()
+            normalized_value = value.strip()
+
+            if normalized_key == "thought":
+                thought = normalized_value
+            elif normalized_key == "action":
+                has_action_field = True
+                action_value = normalized_value.lower()
+                if action_value in ["none", "final", "finish", "final_answer"] or action_value == "":
                     is_final = True
                     action = "none"
                 else:
                     action = action_value
-            elif line.startswith("ACTION INPUT:"):
+            elif normalized_key == "action input":
                 try:
                     import json
-                    action_input = json.loads(line[13:].strip())
-                except:
+                    action_input = json.loads(normalized_value)
+                except Exception:
                     action_input = {}
         
         # 如果没有解析到thought，使用完整响应
         if not thought:
-            thought = response
+            thought = response.strip()
+
+        # 模型未输出 ACTION 字段时，将其视为最终答案，避免无意义迭代。
+        if not has_action_field:
+            is_final = True
+            action = "none"
         
         return ReactStep(
             step_number=step_number + 1,

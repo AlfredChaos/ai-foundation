@@ -1,5 +1,5 @@
 # [Input] 供应商配置（api_key/base_url）与 zhipuai SDK。
-# [Output] 提供智谱模型的异步生成与流式生成能力。
+# [Output] 提供智谱模型的异步生成与流式生成能力（兼容同步迭代流）。
 # [Pos] LLM provider 层智谱实现，兼容新旧 SDK 客户端差异。
 
 import asyncio
@@ -40,7 +40,7 @@ class ZhipuProvider(BaseLLMProvider):
                         base_url=self.base_url if self.base_url else None,
                     )
                     # 新版 zhipuai 移除了 AsyncZhipuAI，使用同步客户端回退
-                    self._logger.info(
+                    self._logger.debug(
                         f"AsyncZhipuAI unavailable, fallback to ZhipuAI: {async_import_error}"
                     )
                 except ImportError as sync_import_error:
@@ -123,10 +123,14 @@ class ZhipuProvider(BaseLLMProvider):
                 return
 
             iterator = iter(stream)
+            sentinel = object()
+
+            def _next_chunk():
+                # 避免 StopIteration 直接进入 Future 引发异常
+                return next(iterator, sentinel)
             while True:
-                try:
-                    chunk = await asyncio.to_thread(next, iterator)
-                except StopIteration:
+                chunk = await asyncio.to_thread(_next_chunk)
+                if chunk is sentinel:
                     break
                 if chunk.choices[0].delta.content:
                     yield chunk.choices[0].delta.content

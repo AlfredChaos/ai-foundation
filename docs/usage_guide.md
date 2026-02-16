@@ -1,3 +1,6 @@
+<!-- [Input] 平台安装、配置与使用说明。 -->
+<!-- [Output] 提供 AI Foundation 使用指南与示例指引。 -->
+<!-- [Pos] docs 层用户使用手册。 -->
 # AI Foundation 使用指南
 
 ## 目录
@@ -513,11 +516,11 @@ tools:
 
 查看 `examples/` 目录：
 
-- `basic_usage.py` - 基础用法示例
+- `zhipu_usage.py` - 智谱 LLM 使用示例
 - `advanced_agent.py` - Agent高级示例
 
 ```bash
 # 运行示例
-python examples/basic_usage.py
+python examples/zhipu_usage.py
 python examples/advanced_agent.py
 ```

@@ -1,6 +1,6 @@
 # [Input] 项目根目录下的 `src` 包与运行时配置（如 API Key）。
-# [Output] 提供可执行的 AI Foundation 功能演示入口。
-# [Pos] examples 层示例脚本，兼容直接运行与模块方式运行。
+# [Output] 提供可执行的智谱 LLM 使用示例入口。
+# [Pos] examples 层智谱示例脚本，兼容直接运行与模块方式运行。
 
 import asyncio
 import sys
@@ -21,7 +21,7 @@ try:
 except ModuleNotFoundError as exc:
     if exc.name != "src":
         raise
-    # 兼容 `python examples/basic_usage.py` 直接运行场景
+    # 兼容 `python examples/zhipu_usage.py` 直接运行场景
     project_root = Path(__file__).resolve().parents[1]
     if str(project_root) not in sys.path:
         sys.path.insert(0, str(project_root))
@@ -89,9 +89,11 @@ async def agent_example():
     # 执行任务
     result = await agent.execute("What is the capital of France?")
 
-    print(f"任务: What is the capital of France?")
+    print("任务: What is the capital of France?")
     print(f"成功: {result.success}")
     print(f"结果: {result.output}")
+    if result.error:
+        print(f"错误: {result.error}")
     print()
 
 
@@ -135,13 +137,19 @@ async def conversation_example():
 
     # 第一轮
     result1 = await agent.execute("我叫张三", conversation_id=conversation_id)
-    print(f"用户: 我叫张三")
+    print("用户: 我叫张三")
+    print(f"成功: {result1.success}")
     print(f"AI: {result1.output}")
+    if result1.error:
+        print(f"错误: {result1.error}")
 
     # 第二轮（Agent会记住名字）
     result2 = await agent.execute("我的名字是什么？", conversation_id=conversation_id)
-    print(f"\n用户: 我的名字是什么？")
+    print("\n用户: 我的名字是什么？")
+    print(f"成功: {result2.success}")
     print(f"AI: {result2.output}")
+    if result2.error:
+        print(f"错误: {result2.error}")
     print()
 
 
@@ -188,7 +196,7 @@ async def context_management_example():
     print(f"Token数: {token_count}")
 
     # 获取上下文信息
-    info = manager.get_context_info(conversation_id)
+    info = await manager.get_context_info(conversation_id)
     print(f"上下文信息: {info}")
     print()
 
@@ -196,7 +204,7 @@ async def context_management_example():
 async def main():
     """运行所有示例"""
     print("\n" + "=" * 50)
-    print("AI Foundation 使用示例")
+    print("智谱 LLM 使用示例")
     print("=" * 50 + "\n")
 
     # 运行所有示例

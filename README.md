@@ -1,3 +1,6 @@
+<!-- [Input] 项目定位、安装方式与示例运行指令。 -->
+<!-- [Output] 提供仓库概览与快速开始指引。 -->
+<!-- [Pos] 仓库根目录说明文档。 -->
 # AI Foundation
 
 基于Python+LangChain的AI基座，提供快速集成AI能力的开发框架。
@@ -24,7 +27,7 @@ pip install -e ".[dev]"
 export ZHIPU_API_KEY=your-key
 
 # 运行示例
-python examples/basic_usage.py
+python examples/zhipu_usage.py
 ```
 
 ## 使用示例

@@ -1,3 +1,6 @@
+<!-- [Input] 项目架构信息与目录结构说明。 -->
+<!-- [Output] 描述 AI Foundation 的系统架构与实施规划。 -->
+<!-- [Pos] docs 层架构设计文档。 -->
 # AI基座架构设计文档
 
 ## 1. 项目概述
@@ -621,7 +624,7 @@ ai-foundation/
 │   └── setup_dev.sh              # 开发环境设置
 │
 ├── examples/
-│   ├── basic_usage.py            # 基础使用示例
+│   ├── zhipu_usage.py            # 智谱使用示例
 │   ├── advanced_agent.py         # 高级Agent示例
 │   └── grpc_client_example.py   # gRPC客户端示例
 │

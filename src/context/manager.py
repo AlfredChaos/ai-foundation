@@ -1,5 +1,6 @@
-# 上下文管理器
-# 管理对话上下文和Token计算
+# [Input] 对话 ID、消息列表与 LLM token 计数依赖。
+# [Output] 提供上下文增删查、截断、总结与统计信息。
+# [Pos] context 层管理器实现，统一维护会话上下文状态。
 
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
@@ -185,25 +186,36 @@ Conversation:
         
         return truncated
     
-    def get_context_info(self, conversation_id: str) -> Dict[str, Any]:
-        """获取上下文信息"""
+    def _build_context_info(self, conversation_id: str, messages: List[Message]) -> Dict[str, Any]:
+        """基于消息列表构建上下文统计信息"""
+        token_count = self.calculate_tokens(messages)
+        return {
+            "conversation_id": conversation_id,
+            "message_count": len(messages),
+            "token_count": token_count,
+            "is_truncated": len(messages) >= self.config.max_messages or token_count >= self.config.max_tokens,
+            "oldest_message": messages[0].timestamp.isoformat() if messages else None,
+            "latest_message": messages[-1].timestamp.isoformat() if messages else None,
+        }
+
+    async def get_context_info(self, conversation_id: str) -> Dict[str, Any]:
+        """异步获取上下文信息（可在运行中的事件循环内安全调用）"""
+        messages = await self._store.get(conversation_id)
+        return self._build_context_info(conversation_id, messages)
+
+    def get_context_info_sync(self, conversation_id: str) -> Dict[str, Any]:
+        """同步获取上下文信息，仅用于非异步调用场景"""
         import asyncio
-        
+
         try:
-            loop = asyncio.new_event_loop()
-            messages = loop.run_until_complete(self._store.get(conversation_id))
-            token_count = self.calculate_tokens(messages)
-            
-            return {
-                "conversation_id": conversation_id,
-                "message_count": len(messages),
-                "token_count": token_count,
-                "is_truncated": len(messages) >= self.config.max_messages or token_count >= self.config.max_tokens,
-                "oldest_message": messages[0].timestamp.isoformat() if messages else None,
-                "latest_message": messages[-1].timestamp.isoformat() if messages else None,
-            }
-        finally:
-            loop.close()
+            asyncio.get_running_loop()
+            raise RuntimeError(
+                "Event loop is already running. Use `await get_context_info(...)` in async context."
+            )
+        except RuntimeError as error:
+            if "already running" in str(error):
+                raise
+            return asyncio.run(self.get_context_info(conversation_id))
     
     async def copy_context(self, source_id: str, target_id: str) -> None:
         """复制上下文"""

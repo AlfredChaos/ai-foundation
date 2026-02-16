@@ -1,3 +1,6 @@
+<!-- [Input] 项目常用命令与架构概览信息。 -->
+<!-- [Output] 指导协作工具在本仓库的操作方式。 -->
+<!-- [Pos] Claude Code 的项目工作指引文档。 -->
 # CLAUDE.md
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
@@ -39,7 +42,7 @@ python -m grpc_tools.protoc -I=src/grpc_service --python_out=src/grpc_service --
 python -m src.grpc_service.server
 
 # 运行示例
-python examples/basic_usage.py
+python examples/zhipu_usage.py
 ```
 
 ## 架构概览

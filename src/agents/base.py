@@ -1,3 +1,6 @@
+# [Input] AgentConfig、模型名、Provider 工厂与配置管理依赖。
+# [Output] 提供 Agent 基类能力（按配置精确解析 provider、请求构建、历史管理）。
+# [Pos] agents 层基础抽象，供各类 Agent 复用通用行为。
 """
 AI Foundation - Agent系统基础模块
 
@@ -22,6 +25,7 @@ from enum import Enum
 from datetime import datetime
 
 from src.core.interfaces import IAgent, AIRequest, AIResponse, Message, MessageRole
+from src.config.manager import get_provider_config
 from src.providers.llm.factory import LLMProviderFactory, ILLMProvider
 from src.tools.tool_manager import ToolManager
 
@@ -145,10 +149,48 @@ class BaseAgent(IAgent, ABC):
             ILLMProvider: LLM供应商实例
         """
         if self._llm_provider is None:
-            # 从模型名推断供应商名称
-            provider_name = self.config.model.split("-")[0]
+            provider_name = self._resolve_provider_name(self.config.model)
             self._llm_provider = LLMProviderFactory.create_from_config(provider_name)
         return self._llm_provider
+
+    def _resolve_provider_name(self, model: str) -> str:
+        """根据配置文件中的模型名精确解析 provider 名称"""
+        normalized_model = model.strip().lower()
+        if not normalized_model:
+            raise ValueError("Model name cannot be empty")
+
+        registered_providers = [name.lower() for name in LLMProviderFactory.list_providers()]
+        if normalized_model in registered_providers:
+            return normalized_model
+
+        matches = []
+        for provider_name in registered_providers:
+            provider_config = get_provider_config(provider_name)
+            if provider_config is None:
+                continue
+
+            configured_models = provider_config.models or {}
+            for configured_model in configured_models.values():
+                if not isinstance(configured_model, str):
+                    continue
+                if configured_model.strip().lower() == normalized_model:
+                    matches.append(provider_name)
+                    break
+
+        if len(matches) == 1:
+            return matches[0]
+
+        if len(matches) > 1:
+            providers = ", ".join(sorted(matches))
+            raise ValueError(
+                f"Model '{model}' is configured in multiple providers: [{providers}]. "
+                "Please specify provider explicitly."
+            )
+
+        raise ValueError(
+            f"Unable to resolve provider for model '{model}' from configured providers. "
+            "Please ensure it exists in `config/default.yaml` under `providers.*.models`."
+        )
     
     def _set_llm_provider(self, provider: ILLMProvider) -> None:
         """

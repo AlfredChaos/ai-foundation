@@ -1,11 +1,12 @@
-# 对话Agent实现
-# 维护对话上下文的多轮对话Agent
+# [Input] AgentConfig、对话任务文本与 ContextManager/LLM provider 依赖。
+# [Output] 提供可维护上下文的多轮对话 Agent 执行结果。
+# [Pos] agents 层对话 Agent 实现，负责会话历史管理与总结触发。
 
 from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 
 from src.agents.base import BaseAgent, AgentConfig, AgentResult, AgentType
-from src.core.interfaces import Message, MessageRole
+from src.core.interfaces import AIRequest, Message, MessageRole
 from src.context.manager import ContextManager
 
 
@@ -51,7 +52,7 @@ class ConversationalAgent(BaseAgent):
             conversation_id = kwargs.get('conversation_id', self.name)
             
             # 获取对话历史
-            history = self._context_manager.get_messages(conversation_id)
+            history = await self._context_manager.get_messages(conversation_id)
             
             # 构建消息
             messages = [self._build_system_message()]
@@ -81,8 +82,8 @@ class ConversationalAgent(BaseAgent):
             response = await llm.generate(request)
             
             # 添加到历史
-            self._context_manager.add_message(conversation_id, "user", task)
-            self._context_manager.add_message(
+            await self._context_manager.add_message(conversation_id, "user", task)
+            await self._context_manager.add_message(
                 conversation_id, 
                 "assistant", 
                 response.content
@@ -96,8 +97,8 @@ class ConversationalAgent(BaseAgent):
                 summary = await self._summarize_conversation(conversation_id)
                 if summary:
                     # 替换旧的历史
-                    self._context_manager.clear_context(conversation_id)
-                    self._context_manager.add_message(
+                    await self._context_manager.clear_context(conversation_id)
+                    await self._context_manager.add_message(
                         conversation_id, 
                         "system", 
                         f"Conversation Summary: {summary}"
@@ -131,9 +132,9 @@ class ConversationalAgent(BaseAgent):
             return result.success and len(result.output) > 0
         return False
     
-    async def _summarize_conversation(self, conversation_id: str) -> str:
+    async def _summarize_conversation(self, conversation_id: str) -> str | None:
         """总结对话"""
-        messages = self._context_manager.get_messages(conversation_id)
+        messages = await self._context_manager.get_messages(conversation_id)
         
         # 提取主要内容
         contents = [m.content for m in messages if m.role != MessageRole.SYSTEM]
@@ -159,9 +160,9 @@ class ConversationalAgent(BaseAgent):
         except Exception:
             return None
     
-    def clear_conversation(self, conversation_id: str) -> None:
+    async def clear_conversation(self, conversation_id: str) -> None:
         """清空对话"""
-        self._context_manager.clear_context(conversation_id)
+        await self._context_manager.clear_context(conversation_id)
     
     def _get_purpose(self) -> str:
         """获取Agent目的"""

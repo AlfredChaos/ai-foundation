@@ -34,21 +34,26 @@ class DeepSeekProvider(BaseLLMProvider):
         client = await self._get_async_client()
         if client is None:
             raise ImportError("OpenAI package not installed")
-        
+
         messages = self._convert_messages(request.messages)
-        
+
         params = {
             "model": request.model,
             "messages": messages,
             "temperature": request.temperature,
             "max_tokens": request.max_tokens,
         }
-        
+
         try:
             response = await client.chat.completions.create(**params)
-            
+
+            # 获取消息对象
+            message = response.choices[0].message
+            # 提取思考内容（DeepSeek思考模型特有）
+            reasoning_content = getattr(message, "reasoning_content", None)
+
             return AIResponse(
-                content=response.choices[0].message.content or "",
+                content=message.content or "",
                 usage=UsageInfo(
                     prompt_tokens=response.usage.prompt_tokens,
                     completion_tokens=response.usage.completion_tokens,
@@ -56,6 +61,7 @@ class DeepSeekProvider(BaseLLMProvider):
                 ),
                 model=response.model,
                 finish_reason=response.choices[0].finish_reason,
+                reasoning_content=reasoning_content,
             )
         except Exception as e:
             self._logger.error(f"DeepSeek API error: {e}")

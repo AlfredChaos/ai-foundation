@@ -56,6 +56,7 @@ class AIResponse:
     model: str
     finish_reason: str
     tool_calls: Optional[List[Dict[str, Any]]] = None
+    reasoning_content: Optional[str] = None  # 思考模型返回的推理过程
 
 
 class ICoreAI(ABC):

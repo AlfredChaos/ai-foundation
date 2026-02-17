@@ -20,8 +20,10 @@ class GoogleProvider(BaseLLMProvider):
             try:
                 from google import genai
                 self._client = genai.Client(api_key=self.api_key)
-            except ImportError:
-                self._logger.warning("Google GenAI package not installed")
+            except ImportError as e:
+                self._logger.error(f"Google GenAI package import failed: {e}")
+            except Exception as e:
+                self._logger.error(f"Google GenAI client initialization failed: {e}")
         return self._client
     
     async def generate(self, request: AIRequest) -> AIResponse:

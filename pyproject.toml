@@ -32,6 +32,7 @@ dependencies = [
 
     # LLM供应商SDK
     "zhipuai>=2.1.0",  # 智谱AI
+    "google-genai>=1.0.0",  # Google Gemini (新的 GenAI SDK)
     
     # 配置管理
     "pydantic>=2.5.0",

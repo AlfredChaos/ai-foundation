@@ -63,7 +63,7 @@ providers:
     api_key: "${OPENROUTER_API_KEY}"
     base_url: "https://openrouter.ai/api/v1"
     models:
-      default: "anthropic/claude-3.5-sonnet"
+      default: "openrouter/free"
 
 # 图像生成配置
 image:

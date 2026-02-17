@@ -77,9 +77,6 @@ async def reasoning_model_example():
     print("3. 思考模型示例 (deepseek-reasoner)")
     print("=" * 50)
 
-    # 创建AI基座，使用思考模型
-    ai = create_ai(provider="deepseek", model="deepseek-reasoner")
-
     # 复杂问题以展示思考过程
     question = "如果在一个房间里有3只猫，每只猫前面有3只猫，每只猫后面有3只猫，请问一共有几只猫？请详细推理。"
 

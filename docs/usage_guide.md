@@ -517,10 +517,12 @@ tools:
 查看 `examples/` 目录：
 
 - `zhipu_usage.py` - 智谱 LLM 使用示例
+- `minimax_usage.py` - Minimax（Anthropic 协议）使用示例
 - `advanced_agent.py` - Agent高级示例
 
 ```bash
 # 运行示例
 python examples/zhipu_usage.py
+python examples/minimax_usage.py
 python examples/advanced_agent.py
 ```

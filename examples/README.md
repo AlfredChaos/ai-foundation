@@ -6,4 +6,5 @@
 
 文件清单:
 - `zhipu_usage.py` - 智谱 LLM 基础使用与流式示例。
+- `minimax_usage.py` - Minimax（Anthropic 协议）全流程使用示例。
 - `advanced_agent.py` - 高级 Agent 使用示例。

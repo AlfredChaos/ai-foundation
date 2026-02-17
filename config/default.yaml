@@ -54,9 +54,9 @@ providers:
   minimax:
     enabled: true
     api_key: "${MINIMAX_API_KEY}"
-    base_url: "https://api.minimax.chat/v1"
+    base_url: "https://api.minimaxi.com/anthropic"
     models:
-      default: "abab6.5s-chat"
+      default: "MiniMax-M2.5"
 
   openrouter:
     enabled: true

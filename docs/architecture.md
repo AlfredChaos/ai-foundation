@@ -625,6 +625,7 @@ ai-foundation/
 │
 ├── examples/
 │   ├── zhipu_usage.py            # 智谱使用示例
+│   ├── minimax_usage.py          # Minimax 使用示例
 │   ├── advanced_agent.py         # 高级Agent示例
 │   └── grpc_client_example.py   # gRPC客户端示例
 │
